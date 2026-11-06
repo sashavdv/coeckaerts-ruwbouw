@@ -1,0 +1,243 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import Review from '../components/Review.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { SITE } from '../site';
+import heroImg from '../assets/realisaties/nieuwbouw-in-rode-baksteen/04.jpg';
+import werf from '../assets/werf-bc-bouw.jpg';
+import detail from '../assets/realisaties/gevel-met-sierwerk-rotselaar/06.jpg';
+
+const values = [
+  {
+    icon: 'user',
+    title: 'Persoonlijk',
+    text: 'Bij BC Bouw spreekt u rechtstreeks met Ward. Geen tussenpersonen, wel korte lijnen en snelle antwoorden.',
+  },
+  {
+    icon: 'bricks',
+    title: 'Vakmanschap',
+    text: 'Strak metselwerk, rechte muren en verzorgde details. We werken volgens de regels van de kunst.',
+  },
+  {
+    icon: 'clock',
+    title: 'Betrouwbaar',
+    text: 'Afspraak is afspraak. We houden u op de hoogte van de planning en de voortgang van uw werf.',
+  },
+  {
+    icon: 'house',
+    title: 'Met passie',
+    text: 'Elke woning is iemands droom. Die verantwoordelijkheid nemen we elke dag mee naar de werf.',
+  },
+] as const;
+---
+
+<BaseLayout
+  title="Over ons"
+  description="BC Bouw is het bouwbedrijf van Ward Coekaerts. Persoonlijk, betrouwbaar en met passie voor degelijke ruwbouw."
+>
+  <PageHero
+    eyebrow="Over ons"
+    title="Bouwen met passie voor uw droom"
+    lead="BC Bouw is het bouwbedrijf van Ward Coekaerts, gespecialiseerd in ruwbouw voor nieuwbouw en renovatie."
+    image={heroImg}
+    crumbs={[{ href: '/over-ons/', label: 'Over ons' }]}
+  />
+
+  <section class="section">
+    <div class="container story">
+      <div class="photos" data-reveal>
+        <Image src={werf} alt="Werf van BC Bouw met bouwbord voor de woning" widths={[400, 700]} sizes="(max-width: 900px) 70vw, 400px" class="p1" />
+        <Image src={detail} alt="Detail van gevelmetselwerk met rondboog" widths={[300, 500]} sizes="(max-width: 900px) 50vw, 280px" class="p2" />
+      </div>
+      <div class="text" data-reveal>
+        <p class="eyebrow">Ons verhaal</p>
+        <h2>Bouwwerken Coekaerts</h2>
+        <p class="lead">“Bouwen met Bouwwerken Coekaerts, waar onze passie uw droom is.” Dat is meer dan een slogan. Het is de manier waarop we elke werf aanpakken.</p>
+        <p>
+          Achter BC Bouw staat Ward Coekaerts. Hij volgt elke werf persoonlijk op, van de eerste afspraak tot de oplevering. Zo
+          weet u altijd wie er aan uw woning werkt en bij wie u terechtkunt met vragen.
+        </p>
+        <p>
+          We nemen de volledige ruwbouw voor onze rekening: afbraak, grondwerken, funderingen, riolering, metselwerk en gevels.
+          Of het nu gaat om een nieuwbouwwoning, een aanbouw of een totaalrenovatie, we bouwen alsof het voor onszelf is.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="/contact/">Maak een afspraak <Icon name="arrow" /></a>
+          <a class="btn btn--outline" href={SITE.phoneHref}><Icon name="phone" /> {SITE.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--bordeaux values-section">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Waar we voor staan</p>
+        <h2>Wat u van BC Bouw mag verwachten</h2>
+      </div>
+      <div class="values">
+        {
+          values.map((v) => (
+            <div class="value" data-reveal>
+              <span class="value-icon">
+                <Icon name={v.icon} size={28} />
+              </span>
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container area" data-reveal>
+      <div>
+        <p class="eyebrow">Werkgebied</p>
+        <h2>Actief in {SITE.region}</h2>
+        <p class="lead">
+          We werkten onder meer in Diepenbeek en Rotselaar. Twijfelt u of uw project in ons werkgebied ligt? Neem gerust contact op.
+        </p>
+      </div>
+      <a class="btn btn--primary" href="/contact/">Contact opnemen <Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <Review />
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .story {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+
+  .photos {
+    position: relative;
+    padding: 0 3rem 4rem 0;
+  }
+
+  .photos :global(.p1) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .photos :global(.p2) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 48%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 6px solid var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .photos::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 40px;
+    bottom: 30px;
+    width: 60%;
+    z-index: -1;
+    border: 12px solid var(--rood);
+    border-right: 0;
+    border-radius: 18px 0 0 18px;
+  }
+
+  .text p:not(.eyebrow):not(.lead) {
+    color: var(--ink-soft);
+  }
+
+  .text .btn-row {
+    margin-top: 2rem;
+  }
+
+  .values {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .value {
+    padding: 2rem 1.5rem;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .value-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 1.25rem;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--bordeaux);
+  }
+
+  .value p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.975rem;
+  }
+
+  .area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border-radius: var(--radius-lg);
+    background: var(--bg-warm);
+    border-left: 8px solid var(--rood);
+  }
+
+  .area h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .area .lead {
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .values {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .story {
+      grid-template-columns: 1fr;
+    }
+
+    .photos {
+      max-width: 520px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .values {
+      grid-template-columns: 1fr;
+    }
+
+    .photos::before {
+      display: none;
+    }
+  }
+</style>

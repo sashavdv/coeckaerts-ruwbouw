@@ -1,0 +1,96 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../site';
+import ogDefault from '../assets/og-image.jpg';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: ImageMetadata;
+}
+
+const { title, description = SITE.description, image = ogDefault } = Astro.props;
+const fullTitle = title ? `${title} | ${SITE.name} – ${SITE.legalName}` : `${SITE.name} – Ruwbouw, renovatie en gevelwerken | ${SITE.legalName}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image.src, Astro.site);
+
+// Tot de site echt live gaat: niet laten indexeren door zoekmachines.
+// Zet PUBLIC_SITE_LIVE=true bij de build voor productie.
+const isLive = import.meta.env.PUBLIC_SITE_LIVE === 'true';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  name: SITE.name,
+  alternateName: SITE.legalName,
+  description: SITE.description,
+  url: Astro.site?.toString(),
+  telephone: '+32486483126',
+  email: SITE.email,
+  image: ogImage.toString(),
+  areaServed: ['Limburg', 'Vlaams-Brabant'],
+  founder: { '@type': 'Person', name: SITE.owner },
+  sameAs: [SITE.facebook],
+};
+---
+
+<!doctype html>
+<html lang="nl-BE" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {!isLive && <meta name="robots" content="noindex, nofollow" />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#8b2828" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nl_BE" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Naar de inhoud</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      const els = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-visible');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px' },
+        );
+        els.forEach((el) => io.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
+  </body>
+</html>

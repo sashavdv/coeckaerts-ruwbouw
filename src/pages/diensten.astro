@@ -1,0 +1,241 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { SERVICES } from '../data/services';
+import heroImg from '../assets/diensten/gevelwerken.jpg';
+
+const riolering = Object.values(
+  import.meta.glob<{ default: ImageMetadata }>('/src/assets/riolering/*.jpg', { eager: true }),
+).map((m) => m.default);
+---
+
+<BaseLayout
+  title="Diensten"
+  description="Ruwbouw voor nieuwbouw en renovatie, gevel- en metselwerken, afbraak, kleine grondwerken, funderingen en riolering. Bekijk wat BC Bouw voor u kan doen."
+>
+  <PageHero
+    eyebrow="Diensten"
+    title="Van eerste graafwerk tot afgewerkte gevel"
+    lead="BC Bouw is gespecialiseerd in ruwbouw. Voor nieuwbouw en renovatie zorgen we voor een stevige basis en strak metselwerk."
+    image={heroImg}
+    crumbs={[{ href: '/diensten/', label: 'Diensten' }]}
+  />
+
+  <nav class="container jump" aria-label="Diensten">
+    {
+      SERVICES.map((s) => (
+        <a href={`#${s.id}`}>
+          <Icon name={s.icon} size={20} /> {s.title}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="container list">
+    {
+      SERVICES.map((s, i) => (
+        <section id={s.id} class:list={['row', { reverse: i % 2 === 1 }]} data-reveal>
+          <div class="media">
+            <Image src={s.image} alt={s.imageAlt} widths={[480, 800, 1100]} sizes="(max-width: 900px) 100vw, 560px" />
+          </div>
+          <div class="text">
+            <span class="icon">
+              <Icon name={s.icon} size={28} />
+            </span>
+            <h2>{s.title}</h2>
+            <p class="lead">{s.intro}</p>
+            <ul class="checks">
+              {s.items.map((item) => (
+                <li>
+                  <Icon name="check" size={20} /> {item}
+                </li>
+              ))}
+            </ul>
+            <a class="btn btn--outline" href="/contact/">
+              Offerte voor {s.title.toLowerCase()} <Icon name="arrow" />
+            </a>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <section class="section section--warm">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Ook rond de woning</p>
+        <h2>Riolering en regenwater</h2>
+        <p class="lead">
+          Een groot deel van ons werk zit onder de grond. Een goed aangelegde riolering en regenwaterput zijn onmisbaar, en we
+          leggen ze met dezelfde zorg aan als het metselwerk.
+        </p>
+      </div>
+      <div class="strip">
+        {
+          riolering.map((img) => (
+            <Image src={img} alt="Rioleringswerken door BC Bouw" widths={[300, 500]} sizes="(max-width: 720px) 50vw, 25vw" />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: -1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.925rem;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+  }
+
+  .jump a:hover {
+    border-color: var(--rood);
+    color: var(--rood);
+  }
+
+  .jump :global(svg) {
+    color: var(--rood);
+  }
+
+  .list {
+    display: grid;
+    gap: clamp(4rem, 8vw, 6.5rem);
+    padding-block: var(--section);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+
+  .row.reverse .media {
+    order: 2;
+  }
+
+  .media {
+    position: relative;
+  }
+
+  .media::after {
+    content: '';
+    position: absolute;
+    right: -14px;
+    bottom: -14px;
+    z-index: -1;
+    width: 60%;
+    height: 60%;
+    border-right: 10px solid var(--rood);
+    border-bottom: 10px solid var(--rood);
+    border-radius: 0 0 18px 0;
+  }
+
+  .row.reverse .media::after {
+    right: auto;
+    left: -14px;
+    border-right: 0;
+    border-left: 10px solid var(--rood);
+    border-radius: 0 0 0 18px;
+  }
+
+  .media :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .icon {
+    display: inline-grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 1.25rem;
+    border-radius: var(--radius);
+    background: #fbeaea;
+    color: var(--rood);
+  }
+
+  .lead {
+    margin-bottom: 1.5rem;
+  }
+
+  .checks {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0 0 2rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .checks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-weight: 600;
+  }
+
+  .checks :global(svg) {
+    flex: none;
+    margin-top: 0.2rem;
+    color: var(--rood);
+  }
+
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .strip :global(img) {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  @media (max-width: 900px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+
+    .row.reverse .media {
+      order: 0;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .strip {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .media::after {
+      display: none;
+    }
+  }
+</style>

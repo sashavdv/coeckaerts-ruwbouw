@@ -1,0 +1,275 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { NAV, SITE } from '../site';
+
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="site-header" data-header>
+  <div class="container bar">
+    <a href="/" class="brand" aria-label="BC Bouw – naar de homepagina">
+      <Logo />
+    </a>
+
+    <nav class="nav" aria-label="Hoofdmenu">
+      <ul id="menu" class="nav-list" data-menu>
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="nav-cta-mobile">
+          <a class="btn btn--primary" href={SITE.phoneHref}>
+            <Icon name="phone" /> Bel {SITE.phone}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <a class="phone" href={SITE.phoneHref}>
+        <Icon name="phone" size={20} />
+        <span>{SITE.phone}</span>
+      </a>
+      <a class="btn btn--primary btn-offerte" href="/contact/">Offerte aanvragen</a>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu"
+        data-menu-toggle
+      >
+        <span class="visually-hidden">Menu</span>
+        <Icon name="menu" class="i-open" />
+        <Icon name="close" class="i-close" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    header?.classList.toggle('is-open', !open);
+    document.body.style.overflow = open ? '' : 'hidden';
+  });
+
+  const onScroll = () => header?.classList.toggle('is-scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* Geen backdrop-filter: dat maakt van de header een containing block en breekt het vaste mobiele menu. */
+    background: var(--white);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .site-header.is-scrolled {
+    border-color: var(--line);
+    box-shadow: 0 4px 20px rgba(31, 26, 25, 0.06);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: var(--header-h);
+  }
+
+  .brand {
+    flex: none;
+    width: 128px;
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+
+  .nav-list {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-list a {
+    display: block;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.975rem;
+    text-decoration: none;
+  }
+
+  .nav-list a:hover {
+    color: var(--rood);
+  }
+
+  .nav-list a[aria-current='page'] {
+    color: var(--bordeaux);
+    box-shadow: inset 0 -3px 0 var(--rood);
+    border-radius: 0;
+  }
+
+  .nav-cta-mobile {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--bordeaux);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-offerte {
+    min-height: 44px;
+    padding-block: 0.6rem;
+  }
+
+  .menu-toggle {
+    display: none;
+    width: 46px;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--bordeaux);
+    cursor: pointer;
+  }
+
+  .menu-toggle .i-close {
+    display: none;
+  }
+
+  .is-open .menu-toggle .i-open {
+    display: none;
+  }
+
+  .is-open .menu-toggle .i-close {
+    display: block;
+  }
+
+  @media (max-width: 1080px) {
+    .phone span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    :global(:root) {
+      --header-h: 68px;
+    }
+
+    .brand {
+      width: 100px;
+    }
+
+    .menu-toggle {
+      display: inline-flex;
+    }
+
+    .btn-offerte {
+      display: none;
+    }
+
+    .phone {
+      width: 46px;
+      height: 46px;
+      justify-content: center;
+      border-radius: var(--radius);
+      background: var(--rood);
+      color: var(--white);
+    }
+
+    .actions {
+      margin-left: auto;
+      gap: 0.5rem;
+    }
+
+    .nav {
+      position: fixed;
+      inset: var(--header-h) 0 0 0;
+      margin: 0;
+      padding: 1.5rem var(--gutter) 2rem;
+      background: var(--white);
+      overflow-y: auto;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+    }
+
+    .is-open .nav {
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+    }
+
+    .nav-list {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .nav-list a {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      font-size: 1.25rem;
+    }
+
+    .nav-list a[aria-current='page'] {
+      box-shadow: none;
+      color: var(--rood);
+    }
+
+    .nav-cta-mobile {
+      display: block;
+      margin-top: 1.5rem;
+    }
+
+    .nav-cta-mobile a.btn {
+      display: flex;
+      width: 100%;
+      padding: 1rem;
+      border: 0;
+      border-radius: var(--radius);
+      color: var(--white);
+      font-size: 1.0625rem;
+    }
+  }
+</style>

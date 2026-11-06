@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout title="Pagina niet gevonden">
+  <section class="section">
+    <div class="container nf">
+      <svg viewBox="0 0 360 300" class="house" aria-hidden="true">
+        <path d="M250 280 H40 a24 24 0 0 1 -24 -24 V120 L140 16 L268 118" fill="none" stroke="var(--rood)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"></path>
+        <text x="70" y="230" font-size="110" font-weight="800" fill="var(--bordeaux)" font-family="inherit">404</text>
+      </svg>
+      <h1>Deze pagina staat (nog) niet recht</h1>
+      <p class="lead">De pagina die u zoekt bestaat niet of werd verplaatst.</p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/">Naar de homepagina <Icon name="arrow" /></a>
+        <a class="btn btn--outline" href="/contact/">Contact</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .house {
+    width: min(280px, 70vw);
+    margin-bottom: 2rem;
+  }
+
+  .lead {
+    margin-inline: auto;
+    margin-bottom: 2rem;
+  }
+
+  .btn-row {
+    justify-content: center;
+  }
+</style>

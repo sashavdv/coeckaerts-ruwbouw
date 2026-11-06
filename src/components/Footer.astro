@@ -1,0 +1,167 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { NAV, SITE } from '../site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container grid">
+    <div class="brand-col">
+      <a href="/" class="brand" aria-label="BC Bouw – naar de homepagina">
+        <Logo variant="dark" tagline />
+      </a>
+    </div>
+
+    <div>
+      <h2 class="title">Contact</h2>
+      <ul class="list">
+        <li>
+          <a href={SITE.phoneHref}><Icon name="phone" size={18} /> {SITE.phone}</a>
+        </li>
+        <li>
+          <a href={`mailto:${SITE.email}`}><Icon name="mail" size={18} /> {SITE.email}</a>
+        </li>
+        {
+          SITE.address && (
+            <li>
+              <span>
+                <Icon name="pin" size={18} /> {SITE.address}
+              </span>
+            </li>
+          )
+        }
+        <li>
+          <span><Icon name="pin" size={18} /> Actief in {SITE.region}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="title">Navigatie</h2>
+      <ul class="list">
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="title">Volg ons</h2>
+      <p class="muted">Bekijk onze lopende werven op Facebook.</p>
+      <a class="social" href={SITE.facebook} rel="noopener" target="_blank">
+        <Icon name="facebook" size={20} /> BC Bouw op Facebook
+      </a>
+    </div>
+  </div>
+
+  <div class="container legal">
+    <p>
+      {`© ${year} ${SITE.name} – ${SITE.legalName}`}
+      {SITE.vat && ` · BTW ${SITE.vat}`}
+    </p>
+    <p><a href="/privacy/">Privacy &amp; wettelijke info</a></p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--bordeaux-900);
+    color: rgba(255, 255, 255, 0.82);
+    padding-top: clamp(3.5rem, 7vw, 5rem);
+    font-size: 0.975rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 0.8fr 1fr;
+    gap: 2.5rem;
+  }
+
+  .brand {
+    display: block;
+    max-width: 260px;
+  }
+
+  .title {
+    margin-bottom: 1rem;
+    color: var(--white);
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .list a,
+  .list span,
+  .social {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: rgba(255, 255, 255, 0.86);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .list a:hover,
+  .social:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+
+  .muted {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .social {
+    font-weight: 600;
+  }
+
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    padding-block: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .legal p {
+    margin: 0;
+  }
+
+  .legal a {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .brand-col {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

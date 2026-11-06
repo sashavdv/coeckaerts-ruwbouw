@@ -1,0 +1,115 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  image?: ImageMetadata;
+  crumbs?: { href: string; label: string }[];
+}
+const { eyebrow, title, lead, image, crumbs = [] } = Astro.props;
+---
+
+<section class="page-hero">
+  {
+    image && (
+      <Image src={image} alt="" class="bg" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" />
+    )
+  }
+  <div class="container inner">
+    {
+      crumbs.length > 0 && (
+        <nav aria-label="Kruimelpad" class="crumbs">
+          <a href="/">Home</a>
+          {crumbs.map((c, i) => (
+            <>
+              <span aria-hidden="true">/</span>
+              {i === crumbs.length - 1 ? <span aria-current="page">{c.label}</span> : <a href={c.href}>{c.label}</a>}
+            </>
+          ))}
+        </nav>
+      )
+    }
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+  <svg class="roof" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 60 L720 8 L1440 60 Z" fill="var(--bg)"></path>
+  </svg>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(5rem, 10vw, 7.5rem);
+    background: var(--bordeaux);
+    color: var(--white);
+    isolation: isolate;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .page-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, rgba(77, 20, 20, 0.95) 0%, rgba(139, 40, 40, 0.86) 45%, rgba(139, 40, 40, 0.55) 100%);
+  }
+
+  .inner {
+    position: relative;
+    max-width: var(--container);
+  }
+
+  h1 {
+    max-width: 18ch;
+    color: var(--white);
+  }
+
+  .eyebrow {
+    color: #ffd2d2;
+  }
+
+  .lead {
+    max-width: 60ch;
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .crumbs a {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .crumbs a:hover {
+    color: var(--white);
+  }
+
+  .roof {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    width: 100%;
+    height: clamp(24px, 4vw, 60px);
+  }
+</style>

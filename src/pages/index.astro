@@ -1,0 +1,547 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Review from '../components/Review.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { SERVICES } from '../data/services';
+import { getProjects } from '../lib/projects';
+import { SITE } from '../site';
+import hero from '../assets/hero.jpg';
+
+const projects = (await getProjects()).filter((p) => p.data.featured).slice(0, 6);
+
+const usps = [
+  { icon: 'user', title: 'Eén vast aanspreekpunt', text: 'Ward volgt uw werf persoonlijk op. U weet altijd bij wie u terechtkunt.' },
+  { icon: 'house', title: 'Alles in één hand', text: 'Van afbraak en grondwerken tot de laatste gevelsteen.' },
+  { icon: 'bricks', title: 'Oog voor detail', text: 'Sierwerk, rondbogen en recuperatiesteen: vakmanschap zie je in de details.' },
+  { icon: 'shield', title: 'Duidelijke afspraken', text: 'Een heldere offerte en een planning waar u op kunt rekenen.' },
+] as const;
+
+const steps = [
+  { icon: 'talk', title: 'Kennismaking', text: 'We bespreken uw plannen, bij voorkeur ter plaatse. Zo zien we meteen wat er nodig is.' },
+  { icon: 'doc', title: 'Offerte op maat', text: 'U ontvangt een duidelijke, gedetailleerde offerte. Geen verrassingen achteraf.' },
+  { icon: 'calendar', title: 'Planning & uitvoering', text: 'We plannen de werken samen in en voeren ze vakkundig uit, met korte communicatielijnen.' },
+  { icon: 'key', title: 'Oplevering', text: 'Uw ruwbouw staat er strak en netjes bij, klaar voor de volgende fase.' },
+] as const;
+---
+
+<BaseLayout>
+  <!-- HERO -->
+  <section class="hero">
+    <Image
+      src={hero}
+      alt="Nieuwbouwwoning in rode baksteen tijdens de ruwbouw, van bovenaf gezien"
+      class="hero-bg"
+      widths={[640, 1024, 1440, 2000]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="container hero-inner">
+      <svg class="hero-house" viewBox="0 0 360 400" aria-hidden="true">
+        <path d="M300 380 H44 a28 28 0 0 1 -28 -28 V160 L170 20 L330 158" fill="none" stroke="var(--rood)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <div class="hero-content">
+        <p class="eyebrow">Bouwwerken Coekaerts</p>
+        <h1>Ruwbouw met passie, van fundering tot gevel.</h1>
+        <p class="hero-lead">
+          BC Bouw realiseert uw nieuwbouw of verbouwing: afbraak, grondwerken, funderingen, metsel- en gevelwerken. Vakwerk, met Ward als vast aanspreekpunt van begin tot eind.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="/contact/">Vraag uw offerte aan <Icon name="arrow" /></a>
+          <a class="btn btn--light" href="/realisaties/">Bekijk realisaties</a>
+        </div>
+        <ul class="hero-points">
+          <li><Icon name="check" size={20} /> Nieuwbouw &amp; renovatie</li>
+          <li><Icon name="check" size={20} /> Gevel- &amp; metselwerken</li>
+          <li><Icon name="check" size={20} /> Kleine grondwerken</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- USP'S -->
+  <section class="usps" aria-label="Waarom BC Bouw">
+    <div class="container usp-grid">
+      {
+        usps.map((u) => (
+          <div class="usp" data-reveal>
+            <span class="usp-icon">
+              <Icon name={u.icon} size={26} />
+            </span>
+            <div>
+              <h3>{u.title}</h3>
+              <p>{u.text}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- DIENSTEN -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head split">
+        <div>
+          <p class="eyebrow">Onze diensten</p>
+          <h2>Alles voor uw ruwbouw</h2>
+        </div>
+        <p class="lead">
+          Van het eerste graafwerk tot de afgewerkte gevel. Bij BC Bouw kunt u rekenen op degelijk werk voor nieuwbouw én renovatie.
+        </p>
+      </div>
+
+      <div class="services">
+        {
+          SERVICES.map((s) => (
+            <a class="service" href={`/diensten/#${s.id}`} data-reveal>
+              <div class="service-media">
+                <Image src={s.image} alt={s.imageAlt} widths={[400, 640]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px" />
+              </div>
+              <div class="service-body">
+                <span class="service-icon">
+                  <Icon name={s.icon} size={26} />
+                </span>
+                <h3>{s.title}</h3>
+                <p>{s.short}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- REALISATIES -->
+  <section class="section section--warm">
+    <div class="container">
+      <div class="section-head split">
+        <div>
+          <p class="eyebrow">Realisaties</p>
+          <h2>Recent werk van BC Bouw</h2>
+        </div>
+        <p class="lead">Een greep uit onze werven: nieuwbouw, verbouwingen en gevelwerken.</p>
+      </div>
+
+      <div class="projects">
+        {projects.map((p) => <ProjectCard project={p} />)}
+      </div>
+
+      <div class="center">
+        <a class="btn btn--outline" href="/realisaties/">Alle realisaties bekijken <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WERKWIJZE -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Werkwijze</p>
+        <h2>Zo pakken we uw project aan</h2>
+        <p class="lead" style="margin-inline:auto">Helder en persoonlijk, van het eerste gesprek tot de oplevering.</p>
+      </div>
+      <ol class="steps">
+        {
+          steps.map((s, i) => (
+            <li class="step" data-reveal>
+              <span class="step-num">{i + 1}</span>
+              <span class="step-icon">
+                <Icon name={s.icon} size={28} />
+              </span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Review />
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* HERO */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: min(88vh, 760px);
+    padding-block: clamp(4rem, 10vw, 7rem);
+    overflow: hidden;
+    color: var(--white);
+    isolation: isolate;
+  }
+
+  .hero :global(.hero-bg) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 40%;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(95deg, rgba(60, 14, 14, 0.94) 0%, rgba(110, 30, 30, 0.82) 42%, rgba(110, 30, 30, 0.25) 75%, rgba(0, 0, 0, 0.05) 100%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.25), transparent 40%);
+  }
+
+  .hero-inner {
+    position: relative;
+  }
+
+  .hero-house {
+    position: absolute;
+    left: calc(var(--gutter) - 10px);
+    top: 50%;
+    width: clamp(260px, 34vw, 430px);
+    transform: translate(-22%, -54%);
+    opacity: 0.32;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    max-width: 640px;
+  }
+
+  .hero .eyebrow {
+    color: #ffd2d2;
+  }
+
+  .hero h1 {
+    color: var(--white);
+  }
+
+  .hero-lead {
+    max-width: 56ch;
+    margin-bottom: 2rem;
+    font-size: clamp(1.0625rem, 1.7vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin: 2.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-weight: 600;
+    font-size: 0.975rem;
+  }
+
+  .hero-points li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .hero-points :global(svg) {
+    color: #ff8a8a;
+  }
+
+  /* USP'S */
+  .usps {
+    position: relative;
+    z-index: 2;
+    margin-top: -3.5rem;
+  }
+
+  .usp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .usp {
+    display: flex;
+    gap: 1rem;
+    padding: 1.75rem 1.5rem;
+  }
+
+  .usp + .usp {
+    border-left: 1px solid var(--line);
+  }
+
+  .usp-icon {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fbeaea;
+    color: var(--rood);
+  }
+
+  .usp h3 {
+    margin-bottom: 0.3rem;
+    font-size: 1.0625rem;
+  }
+
+  .usp p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.925rem;
+    line-height: 1.55;
+  }
+
+  /* Sectiekop: titel links, intro rechts */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 3rem;
+    align-items: end;
+    max-width: none;
+  }
+
+  .split h2 {
+    margin-bottom: 0;
+  }
+
+  .split .lead {
+    margin: 0;
+  }
+
+  /* DIENSTEN */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .service {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .service:hover {
+    color: inherit;
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  .service-media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .service-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .service:hover .service-media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .service-body {
+    position: relative;
+    padding: 2.25rem 1.5rem 1.6rem;
+  }
+
+  .service-icon {
+    position: absolute;
+    top: -28px;
+    left: 1.5rem;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius);
+    background: var(--rood);
+    color: var(--white);
+    box-shadow: 0 6px 16px rgba(197, 4, 4, 0.3);
+  }
+
+  .service h3 {
+    margin-bottom: 0.4rem;
+  }
+
+  .service p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.975rem;
+  }
+
+  /* REALISATIES */
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .center {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  /* WERKWIJZE */
+  .steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: 12%;
+    right: 12%;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 10px, transparent 10px 18px);
+  }
+
+  .step {
+    position: relative;
+    text-align: center;
+  }
+
+  .step-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: var(--white);
+    border: 3px solid var(--bordeaux);
+    color: var(--bordeaux);
+  }
+
+  .step-num {
+    position: absolute;
+    top: -6px;
+    left: calc(50% + 18px);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--rood);
+    color: var(--white);
+    font-size: 0.875rem;
+    font-weight: 800;
+  }
+
+  .step h3 {
+    margin-bottom: 0.4rem;
+  }
+
+  .step p {
+    margin: 0 auto;
+    max-width: 30ch;
+    color: var(--ink-soft);
+    font-size: 0.975rem;
+  }
+
+  @media (max-width: 1024px) {
+    .usp-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .usp:nth-child(3) {
+      border-left: 0;
+    }
+
+    .usp:nth-child(n + 3) {
+      border-top: 1px solid var(--line);
+    }
+
+    .services,
+    .projects {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .steps {
+      grid-template-columns: repeat(2, 1fr);
+      row-gap: 3rem;
+    }
+
+    .steps::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .hero {
+      min-height: auto;
+      padding-bottom: 6rem;
+    }
+
+    .hero::before {
+      background: linear-gradient(180deg, rgba(60, 14, 14, 0.55) 0%, rgba(77, 20, 20, 0.78) 45%, rgba(77, 20, 20, 0.9) 100%);
+    }
+
+    .hero :global(.hero-bg) {
+      object-position: 70% 30%;
+    }
+
+    .hero-house {
+      display: none;
+    }
+
+    .split {
+      grid-template-columns: 1fr;
+    }
+
+    .usp-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .usp + .usp {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .services,
+    .projects {
+      grid-template-columns: 1fr;
+    }
+
+    .steps {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

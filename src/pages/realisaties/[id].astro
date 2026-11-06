@@ -1,0 +1,416 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { getProjects, type Project } from '../../lib/projects';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { id: project.id },
+    props: { project, others: [...projects.slice(i + 1), ...projects.slice(0, i)].slice(0, 3) },
+  }));
+}
+
+interface Props {
+  project: Project;
+  others: Project[];
+}
+
+const { project, others } = Astro.props;
+const { Content } = await render(project);
+const { title, summary, category, location, period, works } = project.data;
+
+// Grote versies voor de lightbox
+const large = await Promise.all(project.photos.map((p) => getImage({ src: p, width: 1600 })));
+---
+
+<BaseLayout title={title} description={summary} image={project.cover}>
+  <PageHero
+    eyebrow={category}
+    title={title}
+    lead={summary}
+    image={project.cover}
+    crumbs={[
+      { href: '/realisaties/', label: 'Realisaties' },
+      { href: `/realisaties/${project.id}/`, label: title },
+    ]}
+  />
+
+  <section class="section">
+    <div class="container layout">
+      <div class="prose" data-reveal>
+        <Content />
+      </div>
+      <aside class="facts" data-reveal>
+        <h2 class="facts-title">Projectinfo</h2>
+        <dl>
+          <div>
+            <dt>Type</dt>
+            <dd>{category}</dd>
+          </div>
+          {
+            location && (
+              <div>
+                <dt>Locatie</dt>
+                <dd>{location}</dd>
+              </div>
+            )
+          }
+          {
+            period && (
+              <div>
+                <dt>Periode</dt>
+                <dd>{period}</dd>
+              </div>
+            )
+          }
+        </dl>
+        <h3 class="facts-sub">Uitgevoerde werken</h3>
+        <ul>
+          {
+            works.map((w) => (
+              <li>
+                <Icon name="check" size={18} /> {w}
+              </li>
+            ))
+          }
+        </ul>
+        <a class="btn btn--primary" href="/contact/">Gelijkaardig project? <Icon name="arrow" /></a>
+      </aside>
+    </div>
+
+    <div class="container">
+      <h2 class="gallery-title">Foto's van de werf</h2>
+      <ul class="gallery">
+        {
+          project.photos.map((photo, i) => (
+            <li>
+              <a href={large[i].src} data-lightbox={i} aria-label={`Foto ${i + 1} van ${project.photos.length} vergroten`}>
+                <Image
+                  src={photo}
+                  alt={`${title}: foto ${i + 1}`}
+                  widths={[360, 600]}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
+                  loading={i < 4 ? 'eager' : 'lazy'}
+                />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <dialog class="lightbox" data-dialog aria-label="Fotoweergave">
+    <img data-lb-img alt="" />
+    <button class="lb-btn lb-close" type="button" data-lb-close aria-label="Sluiten"><Icon name="close" size={28} /></button>
+    <button class="lb-btn lb-prev" type="button" data-lb-prev aria-label="Vorige foto">
+      <Icon name="arrow" size={28} />
+    </button>
+    <button class="lb-btn lb-next" type="button" data-lb-next aria-label="Volgende foto">
+      <Icon name="arrow" size={28} />
+    </button>
+    <p class="lb-count" data-lb-count></p>
+  </dialog>
+
+  <section class="section section--warm">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Meer realisaties</p>
+        <h2>Bekijk ook</h2>
+      </div>
+      <div class="others">
+        {others.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-dialog]')!;
+  const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+  const count = dialog.querySelector<HTMLElement>('[data-lb-count]')!;
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-lightbox]')];
+  let current = 0;
+
+  const show = (i: number) => {
+    current = (i + links.length) % links.length;
+    const link = links[current];
+    img.src = link.href;
+    img.alt = link.querySelector('img')?.alt ?? '';
+    count.textContent = `${current + 1} / ${links.length}`;
+  };
+
+  links.forEach((link, i) =>
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(i);
+      dialog.showModal();
+    }),
+  );
+
+  dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+  dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(current - 1));
+  dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(current + 1));
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') show(current - 1);
+    if (e.key === 'ArrowRight') show(current + 1);
+  });
+</script>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  .prose {
+    font-size: 1.125rem;
+    max-width: 65ch;
+  }
+
+  .prose :global(strong) {
+    color: var(--bordeaux);
+  }
+
+  .facts {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    padding: 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-warm);
+    border-top: 5px solid var(--rood);
+  }
+
+  .facts-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  dt {
+    color: var(--ink-soft);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .facts-sub {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .facts ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .facts li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.975rem;
+  }
+
+  .facts li :global(svg) {
+    flex: none;
+    margin-top: 0.2rem;
+    color: var(--rood);
+  }
+
+  .facts .btn {
+    width: 100%;
+  }
+
+  .gallery-title {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gallery a {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius);
+    cursor: zoom-in;
+  }
+
+  .gallery :global(img) {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .gallery a:hover :global(img) {
+    transform: scale(1.04);
+  }
+
+  .others {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(20, 10, 10, 0.94);
+  }
+
+  .lightbox::backdrop {
+    background: rgba(20, 10, 10, 0.6);
+  }
+
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox img {
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 6rem);
+    object-fit: contain;
+    border-radius: var(--radius);
+  }
+
+  .lb-btn {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--white);
+    cursor: pointer;
+  }
+
+  .lb-btn:hover {
+    background: var(--rood);
+  }
+
+  .lb-close {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .lb-prev,
+  .lb-next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .lb-prev {
+    left: 1rem;
+  }
+
+  .lb-prev :global(svg) {
+    transform: rotate(180deg);
+  }
+
+  .lb-next {
+    right: 1rem;
+  }
+
+  .lb-count {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    margin: 0;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+  }
+
+  @media (max-width: 1024px) {
+    .gallery {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .others {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .others > :global(:nth-child(3)) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .facts {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .gallery {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .others {
+      grid-template-columns: 1fr;
+    }
+
+    .others > :global(:nth-child(3)) {
+      display: block;
+    }
+
+    .lb-prev,
+    .lb-next {
+      top: auto;
+      bottom: 0.75rem;
+      transform: none;
+    }
+  }
+</style>

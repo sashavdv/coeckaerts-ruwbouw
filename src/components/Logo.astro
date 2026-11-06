@@ -1,0 +1,59 @@
+---
+// Vectorversie van het BC Bouw-logo (huislijn + woordmerk), zodat het scherp blijft
+// op elk scherm en zowel op lichte als donkere achtergronden werkt.
+interface Props {
+  variant?: 'light' | 'dark';
+  tagline?: boolean;
+  class?: string;
+}
+const { variant = 'light', tagline = false, class: className } = Astro.props;
+const text = variant === 'dark' ? '#FFFFFF' : 'var(--bordeaux)';
+const sub = variant === 'dark' ? 'rgba(255,255,255,.88)' : 'var(--ink-soft)';
+const viewBox = tagline ? '20 200 930 490' : '20 200 790 440';
+---
+
+<svg
+  class:list={['logo', className]}
+  viewBox={viewBox}
+  role="img"
+  aria-label="BC Bouw – Bouwwerken Coekaerts"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M335 607 H92 a42 42 0 0 1 -42 -42 V392 L210 232 L373 383"
+    fill="none"
+    stroke="var(--rood)"
+    stroke-width="36"
+    stroke-linecap="round"
+    stroke-linejoin="round"></path>
+  <text
+    x="128"
+    y="566"
+    fill={text}
+    font-family="'Open Sans Variable', 'Open Sans', system-ui, sans-serif"
+    font-weight="800"
+    font-size="150"
+    textLength="660"
+    lengthAdjust="spacingAndGlyphs">BC Bouw</text
+  >
+  {
+    tagline && (
+      <g fill={sub} font-family="'Open Sans Variable', 'Open Sans', system-ui, sans-serif" font-size="30">
+        <text x="366" y="624" textLength="570" lengthAdjust="spacingAndGlyphs">
+          Bouwen met bouwwerken Coekaerts
+        </text>
+        <text x="416" y="671" textLength="470" lengthAdjust="spacingAndGlyphs">
+          waar onze passie uw droom is
+        </text>
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .logo {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+</style>

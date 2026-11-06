@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { SITE } from '../site';
+---
+
+<BaseLayout title="Privacy & wettelijke info" description="Privacyverklaring en wettelijke vermeldingen van BC Bouw – Bouwwerken Coekaerts.">
+  <PageHero title="Privacy & wettelijke info" crumbs={[{ href: '/privacy/', label: 'Privacy' }]} />
+
+  <section class="section">
+    <div class="container prose">
+      <h2>Wettelijke vermeldingen</h2>
+      <dl>
+        <dt>Handelsnaam</dt>
+        <dd>{SITE.name} – {SITE.legalName}</dd>
+        <dt>Zaakvoerder</dt>
+        <dd>{SITE.owner}</dd>
+        <dt>Adres</dt>
+        <dd>{SITE.address ?? <span class="todo">nog in te vullen</span>}</dd>
+        <dt>Ondernemingsnummer / btw</dt>
+        <dd>{SITE.vat ?? <span class="todo">nog in te vullen</span>}</dd>
+        <dt>Telefoon</dt>
+        <dd><a href={SITE.phoneHref}>{SITE.phone}</a></dd>
+        <dt>E-mail</dt>
+        <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+      </dl>
+
+      <h2>Privacyverklaring</h2>
+      <p>
+        {SITE.name} hecht veel belang aan uw privacy. We verwerken uw persoonsgegevens in overeenstemming met de Algemene
+        Verordening Gegevensbescherming (AVG/GDPR).
+      </p>
+
+      <h3>Welke gegevens verwerken we?</h3>
+      <p>
+        Wanneer u ons contacteert via het contactformulier, per e-mail of telefonisch, verwerken we de gegevens die u zelf
+        meedeelt: uw naam, telefoonnummer, e-mailadres, de gemeente van uw werf en de informatie over uw project.
+      </p>
+
+      <h3>Waarom verwerken we die gegevens?</h3>
+      <p>
+        Uitsluitend om uw vraag te beantwoorden, een offerte op te maken en, als u ons de opdracht geeft, de werken uit te
+        voeren en te factureren. We verkopen uw gegevens nooit aan derden en gebruiken ze niet voor reclame.
+      </p>
+
+      <h3>Hoe lang bewaren we uw gegevens?</h3>
+      <p>
+        Gegevens van aanvragen die niet tot een opdracht leiden, bewaren we maximaal twee jaar. Gegevens van klanten bewaren we
+        zolang als wettelijk verplicht is (onder meer voor de boekhouding).
+      </p>
+
+      <h3>Cookies</h3>
+      <p>
+        Deze website gebruikt geen tracking- of advertentiecookies. Lettertypes worden vanaf onze eigen server geladen, zodat er
+        geen gegevens naar derden worden doorgestuurd wanneer u de site bezoekt.
+      </p>
+
+      <h3>Uw rechten</h3>
+      <p>
+        U heeft het recht om uw gegevens in te kijken, te laten verbeteren of te laten verwijderen. Stuur hiervoor een e-mail
+        naar <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. Bent u het niet eens met de manier waarop we uw gegevens
+        verwerken? Dan kunt u een klacht indienen bij de
+        <a href="https://www.gegevensbeschermingsautoriteit.be" target="_blank" rel="noopener">Gegevensbeschermingsautoriteit</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: 780px;
+  }
+
+  .prose h2 {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    margin-top: 2.5rem;
+  }
+
+  .prose h2:first-child {
+    margin-top: 0;
+  }
+
+  .prose h3 {
+    margin-top: 1.75rem;
+  }
+
+  .prose p {
+    color: var(--ink-soft);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.6rem 2rem;
+    margin: 0 0 1rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-warm);
+  }
+
+  dt {
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .todo {
+    color: var(--rood);
+    font-style: italic;
+  }
+
+  @media (max-width: 560px) {
+    dl {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+
+    dd {
+      margin-bottom: 0.6rem;
+    }
+  }
+</style>

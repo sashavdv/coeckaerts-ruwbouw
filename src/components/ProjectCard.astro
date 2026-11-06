@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+  eager?: boolean;
+}
+const { project, eager = false } = Astro.props;
+const { title, summary, category, location } = project.data;
+---
+
+<article class="card" data-reveal>
+  <a href={`/realisaties/${project.id}/`} class="link">
+    <div class="media">
+      <Image
+        src={project.cover}
+        alt={title}
+        widths={[400, 640, 900]}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+        loading={eager ? 'eager' : 'lazy'}
+      />
+      <span class="tag">{category}</span>
+    </div>
+    <div class="body">
+      {
+        location && (
+          <p class="loc">
+            <Icon name="pin" size={16} /> {location}
+          </p>
+        )
+      }
+      <h3>{title}</h3>
+      <p class="summary">{summary}</p>
+      <span class="more">Bekijk project <Icon name="arrow" size={18} /></span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .card {
+    height: 100%;
+  }
+
+  .link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    transition:
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .link:hover {
+    color: inherit;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--bg-warm);
+  }
+
+  .media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .link:hover .media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .tag {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: var(--bordeaux);
+    color: var(--white);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.4rem 1.5rem 1.6rem;
+  }
+
+  .loc {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.4rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .summary {
+    color: var(--ink-soft);
+    font-size: 0.975rem;
+  }
+
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    color: var(--rood);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .link:hover .more :global(svg) {
+    transform: translateX(3px);
+  }
+
+  .more :global(svg) {
+    transition: transform 0.2s ease;
+  }
+</style>
