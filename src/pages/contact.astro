@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import Icon from '../components/Icon.astro';
@@ -80,7 +81,7 @@ const types = [
 
           <label class="consent">
             <input type="checkbox" name="toestemming" required />
-            <span>Ik ga akkoord dat BC Bouw mijn gegevens gebruikt om mijn aanvraag te beantwoorden. Lees de <a href="/privacy/">privacyverklaring</a>. *</span>
+            <span>Ik ga akkoord dat BC Bouw mijn gegevens gebruikt om mijn aanvraag te beantwoorden. Lees de <a href={url('/privacy/')}>privacyverklaring</a>. *</span>
           </label>
 
           <button class="btn btn--primary submit" type="submit">Verstuur aanvraag <Icon name="arrow" /></button>

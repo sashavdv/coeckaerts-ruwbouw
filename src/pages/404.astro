@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 ---
@@ -13,8 +14,8 @@ import Icon from '../components/Icon.astro';
       <h1>Deze pagina staat (nog) niet recht</h1>
       <p class="lead">De pagina die u zoekt bestaat niet of werd verplaatst.</p>
       <div class="btn-row">
-        <a class="btn btn--primary" href="/">Naar de homepagina <Icon name="arrow" /></a>
-        <a class="btn btn--outline" href="/contact/">Contact</a>
+        <a class="btn btn--primary" href={url('/')}>Naar de homepagina <Icon name="arrow" /></a>
+        <a class="btn btn--outline" href={url('/contact/')}>Contact</a>
       </div>
     </div>
   </section>

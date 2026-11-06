@@ -44,6 +44,20 @@ Foto's mogen gewoon gsm-foto's zijn: Astro zet ze bij het bouwen om naar geoptim
    DEPLOY_HOST=gebruiker@server ./deploy/deploy.sh --live   # livegang
    ```
 
+## Preview op GitHub Pages
+
+Elke push naar `main` bouwt de site en zet ze op GitHub Pages via `.github/workflows/pages.yml`:
+<https://sashavdv.github.io/coeckaerts-ruwbouw/>
+
+- Eenmalig instellen: repo → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+- Op een gratis GitHub-account werkt Pages alleen als de repo **publiek** is. Met GitHub Pro kan de repo privé
+  blijven, maar de Pages-site zelf is altijd publiek toegankelijk (geen wachtwoord).
+- De preview staat op `noindex`, zodat zoekmachines ze niet oppikken.
+- Wil je het contactformulier echt laten versturen? Zet dan een repository-variabele `PUBLIC_WEB3FORMS_KEY`
+  (Settings → Secrets and variables → Actions → Variables).
+- De site draait daar in een submap. Gebruik voor interne links daarom altijd `url('/pad/')` uit `src/lib/url.ts`,
+  nooit een vaste `/pad/`.
+
 ### Livegang-checklist
 
 - [ ] Ward heeft teksten, diensten en werkgebied nagekeken

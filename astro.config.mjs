@@ -2,10 +2,12 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Definitieve domeinnaam nog niet gekozen. Pas `site` aan zodra het domein vastligt
-// (gebruikt voor canonical URLs, Open Graph en sitemap.xml).
+// Standaard: het eigen domein (pas aan zodra het domein vastligt).
+// Voor GitHub Pages zet de workflow SITE_URL en BASE_PATH, zodat de site
+// in de submap /<repo>/ werkt. Interne links gebruiken daarom url() uit src/lib/url.ts.
 export default defineConfig({
-  site: 'https://www.bc-bouw.be',
+  site: process.env.SITE_URL || 'https://www.bc-bouw.be',
+  base: process.env.BASE_PATH || '/',
   trailingSlash: 'ignore',
   build: {
     format: 'directory',

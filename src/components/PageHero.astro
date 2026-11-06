@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import { Image } from 'astro:assets';
 
 interface Props {
@@ -21,11 +22,11 @@ const { eyebrow, title, lead, image, crumbs = [] } = Astro.props;
     {
       crumbs.length > 0 && (
         <nav aria-label="Kruimelpad" class="crumbs">
-          <a href="/">Home</a>
+          <a href={url('/')}>Home</a>
           {crumbs.map((c, i) => (
             <>
               <span aria-hidden="true">/</span>
-              {i === crumbs.length - 1 ? <span aria-current="page">{c.label}</span> : <a href={c.href}>{c.label}</a>}
+              {i === crumbs.length - 1 ? <span aria-current="page">{c.label}</span> : <a href={url(c.href)}>{c.label}</a>}
             </>
           ))}
         </nav>

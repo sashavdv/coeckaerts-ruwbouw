@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
@@ -65,7 +66,7 @@ const values = [
           Of het nu gaat om een nieuwbouwwoning, een aanbouw of een totaalrenovatie, we bouwen alsof het voor onszelf is.
         </p>
         <div class="btn-row">
-          <a class="btn btn--primary" href="/contact/">Maak een afspraak <Icon name="arrow" /></a>
+          <a class="btn btn--primary" href={url('/contact/')}>Maak een afspraak <Icon name="arrow" /></a>
           <a class="btn btn--outline" href={SITE.phoneHref}><Icon name="phone" /> {SITE.phone}</a>
         </div>
       </div>
@@ -103,7 +104,7 @@ const values = [
           We werkten onder meer in Diepenbeek en Rotselaar. Twijfelt u of uw project in ons werkgebied ligt? Neem gerust contact op.
         </p>
       </div>
-      <a class="btn btn--primary" href="/contact/">Contact opnemen <Icon name="arrow" /></a>
+      <a class="btn btn--primary" href={url('/contact/')}>Contact opnemen <Icon name="arrow" /></a>
     </div>
   </section>
 
