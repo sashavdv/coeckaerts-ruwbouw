@@ -1,0 +1,8 @@
+# Geheimen voor de Worker bij lokaal testen met `npm run cf:dev`. Kopieer naar .dev.vars.
+# In Cloudflare zet je ze onder Worker → Settings → Variables and Secrets (type: Secret).
+
+# Resend API-sleutel met enkel "Sending access", beperkt tot het domein van deze klant.
+RESEND_API_KEY=
+
+# Secret key van dezelfde Turnstile-widget als PUBLIC_TURNSTILE_SITE_KEY. Leeg = geen controle.
+TURNSTILE_SECRET_KEY=

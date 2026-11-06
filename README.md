@@ -1,16 +1,27 @@
 # BC Bouw – website
 
 Website voor **BC Bouw (Bouwwerken Coekaerts)**: ruwbouw, renovatie, gevelwerken en kleine grondwerken.
-Statische site gebouwd met [Astro](https://astro.build). Geen database, geen PHP, gewoon HTML/CSS die nginx serveert.
+
+**Stack** (dezelfde voor alle statische klantsites):
+
+| Onderdeel | Keuze |
+|---|---|
+| Site | [Astro](https://astro.build), volledig statisch |
+| Hosting + CI/CD | Cloudflare Workers Static Assets, gekoppeld aan GitHub (Workers Builds) |
+| Contactformulier | `POST /api/contact` in dezelfde Worker (`worker/index.ts`) |
+| Mail | Resend, verstuurd vanaf het **eigen domein van de klant** |
+| Spam | Cloudflare Turnstile + honeypot |
 
 ## Lokaal draaien
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321
+npm run dev        # http://localhost:4321 (alleen de site, formulier valt terug op mailto)
 npm run build      # bouwt naar dist/
-npm run preview    # bekijk de build lokaal
+npm run cf:dev     # bouwt en draait site + Worker zoals op Cloudflare (http://localhost:8787)
 ```
+
+Voor `cf:dev` met een echte mailverzending: kopieer `.dev.vars.example` naar `.dev.vars` en vul de sleutels in.
 
 ## Structuur
 
@@ -21,7 +32,10 @@ npm run preview    # bekijk de build lokaal
 | `src/content/realisaties/*.md` | Eén bestand per project (titel, tekst, uitgevoerde werken) |
 | `src/assets/realisaties/<project>/` | Foto's per project, `01.jpg` is de omslagfoto |
 | `src/pages/` | Pagina's: home, diensten, realisaties, over ons, contact, privacy |
-| `deploy/` | nginx-config en deployscript |
+| `worker/index.ts` | Cloudflare Worker: serveert `dist/` en verwerkt `/api/contact` |
+| `wrangler.jsonc` | Cloudflare-config: Worker-naam, afzender- en ontvangstadres van het formulier |
+| `public/_headers` | Cache- en beveiligingsheaders op Cloudflare |
+| `deploy/` | Alternatief: nginx-config en deployscript voor een eigen server |
 
 ### Nieuw project toevoegen
 
@@ -31,7 +45,37 @@ npm run preview    # bekijk de build lokaal
 
 Foto's mogen gewoon gsm-foto's zijn: Astro zet ze bij het bouwen om naar geoptimaliseerde WebP in meerdere formaten.
 
-## Online zetten (Hetzner + nginx)
+## Online zetten op Cloudflare
+
+### 1. Worker koppelen (eenmalig)
+- Cloudflare-dashboard → **Workers & Pages → Create → Import a repository** → deze repo.
+- Build command: `npm run build` · Deploy command: `npx wrangler deploy` · Productiebranch: `main`.
+- De Worker-naam in het dashboard moet gelijk zijn aan `name` in `wrangler.jsonc` (`coeckaerts-ruwbouw`).
+- Elke push naar `main` gaat live; andere branches krijgen een eigen preview-URL.
+
+### 2. Contactformulier (Resend)
+1. Voeg het **domein van de klant** (bv. `bc-bouw.be`) toe in Resend → *Domains* en zet de DNS-records die Resend
+   toont in Cloudflare DNS. Wacht tot het domein op *Verified* staat.
+2. Maak in Resend een **API key** met *Sending access*, beperkt tot dat ene domein. Zo staat elke klant los van de
+   andere domeinen in je account.
+3. Zet in Cloudflare → Worker → **Settings → Variables and Secrets** een *Secret* `RESEND_API_KEY`.
+4. Controleer `CONTACT_TO` (ontvanger) en `MAIL_FROM` (afzender, moet op het geverifieerde domein staan) in `wrangler.jsonc`.
+
+Zolang `RESEND_API_KEY` ontbreekt, opent het formulier het mailprogramma van de bezoeker. Er gaat dus niets verloren.
+
+### 3. Spambescherming (Turnstile, aangeraden)
+1. Cloudflare-dashboard → **Turnstile → Add widget**, met als hostnames het `workers.dev`-adres en het eigen domein.
+2. **Site key** → buildvariabele `PUBLIC_TURNSTILE_SITE_KEY` (Worker → Settings → Build → Variables and secrets).
+3. **Secret key** → secret `TURNSTILE_SECRET_KEY` (Worker → Settings → Variables and Secrets).
+4. Nieuwe deploy starten.
+
+### 4. Eigen domein
+Voeg het domein toe aan Cloudflare (gratis), zet de nameservers bij de registrar op die van Cloudflare en koppel het
+via Worker → **Settings → Domains & Routes**. Pas daarna `site` in `astro.config.mjs` en `public/robots.txt` aan.
+
+## Alternatief: eigen server (Hetzner + nginx)
+
+Werkt alleen voor de statische site; het contactformulier valt daar terug op het mailprogramma.
 
 1. **Domein** registreren (voorstel: `bc-bouw.be`) en een A-record (en AAAA) naar de server laten wijzen voor `bc-bouw.be` en `www.bc-bouw.be`.
 2. **Map** aanmaken op de server: `sudo mkdir -p /var/www/bc-bouw && sudo chown <deploy-user> /var/www/bc-bouw`.
@@ -53,8 +97,7 @@ Elke push naar `main` bouwt de site en zet ze op GitHub Pages via `.github/workf
 - Op een gratis GitHub-account werkt Pages alleen als de repo **publiek** is. Met GitHub Pro kan de repo privé
   blijven, maar de Pages-site zelf is altijd publiek toegankelijk (geen wachtwoord).
 - De preview staat op `noindex`, zodat zoekmachines ze niet oppikken.
-- Wil je het contactformulier echt laten versturen? Zet dan een repository-variabele `PUBLIC_WEB3FORMS_KEY`
-  (Settings → Secrets and variables → Actions → Variables).
+- Er draait daar geen Worker: het contactformulier opent het mailprogramma van de bezoeker.
 - De site draait daar in een submap. Gebruik voor interne links daarom altijd `url('/pad/')` uit `src/lib/url.ts`,
   nooit een vaste `/pad/`.
 
@@ -62,10 +105,9 @@ Elke push naar `main` bouwt de site en zet ze op GitHub Pages via `.github/workf
 
 - [ ] Ward heeft teksten, diensten en werkgebied nagekeken
 - [ ] Adres en ondernemingsnummer ingevuld in `src/site.ts` (wettelijk verplicht)
-- [ ] `PUBLIC_WEB3FORMS_KEY` ingesteld en een testbericht verstuurd
+- [ ] Domein in Resend geverifieerd, `RESEND_API_KEY` en Turnstile ingesteld, testbericht ontvangen (ook in spam kijken)
 - [ ] `site` in `astro.config.mjs` en `robots.txt` kloppen met het gekozen domein
-- [ ] `auth_basic`-regels uit de nginx-config verwijderd
-- [ ] Gedeployed met `--live` (haalt `noindex` weg)
+- [ ] Buildvariabele `PUBLIC_SITE_LIVE=true` gezet en opnieuw gedeployed (haalt `noindex` weg)
 - [ ] Google Bedrijfsprofiel aangemaakt en site ingediend in Google Search Console
 
 ## Bronnen

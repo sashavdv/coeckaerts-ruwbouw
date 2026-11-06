@@ -43,6 +43,16 @@ import { SITE } from '../site';
         voeren en te factureren. We verkopen uw gegevens nooit aan derden en gebruiken ze niet voor reclame.
       </p>
 
+      <h3>Wie verwerkt uw gegevens mee?</h3>
+      <p>
+        Voor de werking van deze website doen we een beroep op enkele dienstverleners, die uw gegevens alleen in onze opdracht
+        verwerken:
+      </p>
+      <ul>
+        <li><strong>Cloudflare</strong>: hosting van de website en spambescherming van het contactformulier (Cloudflare Turnstile).</li>
+        <li><strong>Resend</strong>: het versturen van uw bericht uit het contactformulier naar onze mailbox.</li>
+      </ul>
+
       <h3>Hoe lang bewaren we uw gegevens?</h3>
       <p>
         Gegevens van aanvragen die niet tot een opdracht leiden, bewaren we maximaal twee jaar. Gegevens van klanten bewaren we
@@ -51,8 +61,9 @@ import { SITE } from '../site';
 
       <h3>Cookies</h3>
       <p>
-        Deze website gebruikt geen tracking- of advertentiecookies. Lettertypes worden vanaf onze eigen server geladen, zodat er
-        geen gegevens naar derden worden doorgestuurd wanneer u de site bezoekt.
+        Deze website gebruikt geen tracking- of advertentiecookies. Lettertypes worden vanaf onze eigen website geladen, niet
+        via een externe dienst. Op de contactpagina controleert Cloudflare Turnstile of u een mens bent; daarbij worden enkel
+        technische gegevens gebruikt die nodig zijn om spam tegen te houden.
       </p>
 
       <h3>Uw rechten</h3>
@@ -84,8 +95,18 @@ import { SITE } from '../site';
     margin-top: 1.75rem;
   }
 
-  .prose p {
+  .prose p,
+  .prose li {
     color: var(--ink-soft);
+  }
+
+  .prose ul {
+    margin: 0 0 1em;
+    padding-left: 1.25rem;
+  }
+
+  .prose li + li {
+    margin-top: 0.35rem;
   }
 
   dl {

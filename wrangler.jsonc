@@ -1,0 +1,25 @@
+// Cloudflare Workers-config: statische site uit dist/ + /api/contact voor het contactformulier.
+// `name` moet exact gelijk zijn aan de naam van de Worker in het Cloudflare-dashboard.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "coeckaerts-ruwbouw",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Alleen de API gaat langs de Worker; al de rest wordt rechtstreeks als statisch bestand geserveerd.
+    "run_worker_first": ["/api/*"]
+  },
+  // Niet-geheime instellingen per site. Geheimen (RESEND_API_KEY, TURNSTILE_SECRET_KEY)
+  // zet je in het dashboard onder Settings → Variables and Secrets, of met `wrangler secret put`.
+  "vars": {
+    "SITE_NAME": "BC Bouw",
+    "CONTACT_TO": "bc.bouw@hotmail.com",
+    "MAIL_FROM": "BC Bouw website <formulier@bc-bouw.be>"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

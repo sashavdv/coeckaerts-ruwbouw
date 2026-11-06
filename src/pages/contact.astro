@@ -6,10 +6,11 @@ import Icon from '../components/Icon.astro';
 import { SITE } from '../site';
 import heroImg from '../assets/realisaties/woning-in-witte-gevelsteen/01.jpg';
 
-// Contactformulier: zet PUBLIC_WEB3FORMS_KEY (gratis via web3forms.com) om berichten
-// rechtstreeks naar Ward te mailen. Zonder sleutel opent het formulier het mailprogramma
-// van de bezoeker met een ingevuld bericht.
-const formKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+// Het formulier post naar /api/contact (Cloudflare Worker, zie worker/index.ts) die via Resend mailt.
+// Waar die API niet bestaat (GitHub Pages, lokale `astro dev`) of nog niet ingesteld is,
+// opent het formulier het mailprogramma van de bezoeker met een ingevuld bericht.
+// PUBLIC_TURNSTILE_SITE_KEY (buildvariabele) zet de spambescherming van Cloudflare Turnstile aan.
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 const types = [
   'Nieuwbouw (ruwbouw)',
@@ -40,9 +41,8 @@ const types = [
         <h2>Stuur ons een bericht</h2>
         <p class="muted">Velden met een * zijn verplicht.</p>
 
-        <form class="form" data-form data-key={formKey} novalidate>
-          <input type="hidden" name="subject" value="Nieuwe aanvraag via de website van BC Bouw" />
-          <input type="checkbox" name="botcheck" class="visually-hidden" tabindex="-1" autocomplete="off" />
+        <form class="form" data-form data-endpoint={url('/api/contact')} novalidate>
+          <input type="checkbox" name="botcheck" class="visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
           <div class="grid2">
             <label class="field">
@@ -83,6 +83,8 @@ const types = [
             <input type="checkbox" name="toestemming" required />
             <span>Ik ga akkoord dat BC Bouw mijn gegevens gebruikt om mijn aanvraag te beantwoorden. Lees de <a href={url('/privacy/')}>privacyverklaring</a>. *</span>
           </label>
+
+          {turnstileKey && <div class="cf-turnstile" data-sitekey={turnstileKey} data-language="nl" data-theme="light" />}
 
           <button class="btn btn--primary submit" type="submit">Verstuur aanvraag <Icon name="arrow" /></button>
           <p class="status" data-status role="status" aria-live="polite"></p>
@@ -131,6 +133,7 @@ const types = [
       </aside>
     </div>
   </section>
+  {turnstileKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 </BaseLayout>
 
 <script>
@@ -139,6 +142,28 @@ const types = [
   const form = document.querySelector<HTMLFormElement>('[data-form]')!;
   const status = form.querySelector<HTMLElement>('[data-status]')!;
   const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+
+  const setStatus = (text: string, kind: 'success' | 'error' | '' = '') => {
+    status.className = kind ? `status is-${kind}` : 'status';
+    status.textContent = text;
+  };
+
+  // Open het mailprogramma van de bezoeker met een ingevuld bericht.
+  const openMailFallback = (data: FormData) => {
+    const body = [
+      `Naam: ${data.get('naam')}`,
+      `Telefoon: ${data.get('telefoon')}`,
+      `E-mail: ${data.get('email')}`,
+      `Gemeente: ${data.get('gemeente') || '-'}`,
+      `Type werk: ${data.get('type') || '-'}`,
+      '',
+      String(data.get('bericht')),
+    ].join('\n');
+    window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent('Aanvraag via de website')}&body=${encodeURIComponent(body)}`;
+    setStatus('Uw mailprogramma wordt geopend. Verstuur daar het bericht.', 'success');
+  };
+
+  const resetTurnstile = () => (window as unknown as { turnstile?: { reset: () => void } }).turnstile?.reset();
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -156,41 +181,43 @@ const types = [
     const data = new FormData(form);
     if (data.get('botcheck')) return;
 
-    const key = form.dataset.key;
-    if (!key) {
-      // Geen formulierdienst ingesteld: open het mailprogramma met een ingevuld bericht.
-      const body = [
-        `Naam: ${data.get('naam')}`,
-        `Telefoon: ${data.get('telefoon')}`,
-        `E-mail: ${data.get('email')}`,
-        `Gemeente: ${data.get('gemeente') || '-'}`,
-        `Type werk: ${data.get('type') || '-'}`,
-        '',
-        String(data.get('bericht')),
-      ].join('\n');
-      window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent('Aanvraag via de website')}&body=${encodeURIComponent(body)}`;
-      status.textContent = 'Uw mailprogramma wordt geopend. Verstuur daar het bericht.';
-      status.classList.add('is-success');
+    button.disabled = true;
+    setStatus('Bezig met verzenden…');
+
+    let res: Response;
+    try {
+      res = await fetch(form.dataset.endpoint!, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+    } catch {
+      // Geen verbinding met de API: val terug op het mailprogramma.
+      button.disabled = false;
+      openMailFallback(data);
       return;
     }
 
-    button.disabled = true;
-    status.textContent = 'Bezig met verzenden…';
-    try {
-      data.set('access_key', key);
-      data.set('from_name', 'Website BC Bouw');
-      const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
-      const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.message);
+    const result = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    button.disabled = false;
+
+    if (res.ok && result?.ok) {
       form.reset();
       form.classList.remove('was-validated');
-      status.textContent = 'Bedankt! Uw aanvraag is verstuurd. Ward neemt zo snel mogelijk contact met u op.';
-      status.classList.add('is-success');
-    } catch {
-      status.textContent = `Er ging iets mis bij het verzenden. Bel ons gerust op ${SITE.phone}.`;
-      status.classList.add('is-error');
-    } finally {
-      button.disabled = false;
+      resetTurnstile();
+      setStatus('Bedankt! Uw aanvraag is verstuurd. Ward neemt zo snel mogelijk contact met u op.', 'success');
+      return;
+    }
+
+    // Geen API op deze hosting (404/405) of nog niet ingesteld (503): mailprogramma als alternatief.
+    if (!result || [404, 405, 503].includes(res.status)) {
+      openMailFallback(data);
+      return;
+    }
+
+    resetTurnstile();
+    if (result.error === 'turnstile') {
+      setStatus('De spamcontrole is mislukt. Probeer het opnieuw.', 'error');
+    } else if (result.error === 'validation') {
+      setStatus('Controleer de ingevulde gegevens en probeer opnieuw.', 'error');
+    } else {
+      setStatus(`Er ging iets mis bij het verzenden. Bel ons gerust op ${SITE.phone}.`, 'error');
     }
   });
 </script>

@@ -38,7 +38,6 @@ jobs:
           # Bv. https://sashavdv.github.io en /coeckaerts-ruwbouw
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          PUBLIC_WEB3FORMS_KEY: ${{ vars.PUBLIC_WEB3FORMS_KEY }}
 
       - uses: actions/upload-pages-artifact@v4
         with:
